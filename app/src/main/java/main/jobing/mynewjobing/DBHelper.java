@@ -19,6 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d(LOG_TAG, "--- onCreate database ---");
         // создаем таблицу с полями
 
+        ///
         db.execSQL("create table employee ("
                 + "id integer primary key autoincrement,"
                 + "fname text,"
