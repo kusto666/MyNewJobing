@@ -31,16 +31,26 @@ import org.json.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import main.jobing.mynewjobing.AppController;
 import main.jobing.mynewjobing.DBHelper;
 import main.jobing.mynewjobing.R;
 import main.jobing.mynewjobing.employee.MyEmployee;
+import main.jobing.mynewjobing.specialty.MySpecialty;
+import main.jobing.mynewjobing.ui.employee.EmployeeFragment;
+import main.jobing.mynewjobing.ui.specialty.SpecialtyFragment;
 
 public class MainFragment extends Fragment {
 
     ArrayList<MyEmployee> myEmployeeArrayList;// Массив с обектами сотрудников!
     MyEmployee tempEmployee = null; // Сюда пишем нового сотрудника!
+
+    ArrayList<MySpecialty> mySpecialtyArrayList;// Массив с объектами специальностей!
+    MySpecialty tempSpecialty = null; // Сюда пишем новую специальность - временно!
 
     Context thiscontext;
     // Progress dialog
@@ -58,6 +68,8 @@ public class MainFragment extends Fragment {
     private MainViewModel dashboardViewModel;
     private Button btnRefreshAllUsers;
     private Button btnClearDB;
+    private Button btnShowSpecialty;
+    private Button btnShowJobInSelectSpec;
     public static TextView txtResponse;
     //public static String jsonResponse;
 
@@ -69,27 +81,29 @@ public class MainFragment extends Fragment {
     public static String stJsonResponseArray;
     public static String jsonResponse;
 
-    DBHelper dbHelper;
-    SQLiteDatabase db;
+    public static DBHelper dbHelper;
+    public static SQLiteDatabase db;
     ContentValues cv;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState)
     {
         thiscontext = container.getContext();
-        dashboardViewModel =
-                ViewModelProviders.of(this).get(MainViewModel.class);
+        /*dashboardViewModel =
+                ViewModelProviders.of(this).get(MainViewModel.class);*/
         View root = inflater.inflate(R.layout.fragment_main, container, false);
         //final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+       /* dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 //textView.setText(s);
             }
-        });
+        });*/
 
         btnRefreshAllUsers =  (Button) root.findViewById(R.id.btnRefreshAllUsers);
         btnClearDB =  (Button) root.findViewById(R.id.btnClearDB);
+        btnShowSpecialty =  (Button) root.findViewById(R.id.btnShowSpecialty);
+        btnShowJobInSelectSpec =  (Button) root.findViewById(R.id.btnShowJobInSelectSpec);
         txtResponse = root.findViewById(R.id.txtResponse);
 
         btnRefreshAllUsers.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +120,28 @@ public class MainFragment extends Fragment {
             }
         });
 
+        btnShowSpecialty.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //EmployeeFragment nextFrag= new EmployeeFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new SpecialtyFragment(), null)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        btnShowJobInSelectSpec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new EmployeeFragment(), null)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
         dbHelper = new DBHelper(thiscontext);
         // подключаемся к БД
         db = dbHelper.getWritableDatabase();
@@ -117,7 +153,7 @@ public class MainFragment extends Fragment {
 
         cv = new ContentValues();
         // подключаемся к БД
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db = dbHelper.getWritableDatabase();
         showpDialog();
         jsonResponse = "";
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
@@ -213,17 +249,17 @@ public class MainFragment extends Fragment {
 
                             myEmployeeArrayList.add(tempEmployee);
 
-                            Log.d(dbHelper.LOG_TAG, "--- Insert in mytable: ---");
+                            Log.d(dbHelper.LOG_TAG, "--- Insert in employee: ---");
                             // подготовим данные для вставки в виде пар: наименование столбца - значение
                             cv.put("fname", stTempf_name);
                             cv.put("lname", stTempl_name);
                             // вставляем запись и получаем ее ID
-                            long rowID = db.insert("mytable", null, cv);
+                            long rowID = db.insert("employee", null, cv);
                             Log.d(dbHelper.LOG_TAG, "row inserted, ID = " + rowID);
 
-                            Log.d(dbHelper.LOG_TAG, "--- Rows in mytable: ---");
-                            // делаем запрос всех данных из таблицы mytable, получаем Cursor
-                            Cursor c = db.query("mytable", null, null, null,
+                            Log.d(dbHelper.LOG_TAG, "--- Rows in employee: ---");
+                            // делаем запрос всех данных из таблицы employee, получаем Cursor
+                            Cursor c = db.query("employee", null, null, null,
                                     null, null, null);
 
                             // ставим позицию курсора на первую строку выборки
@@ -248,14 +284,67 @@ public class MainFragment extends Fragment {
                                 Log.d(dbHelper.LOG_TAG, "0 rows");
                             c.close();
                             hidepDialog();
-
+                            /////////////////////////////////////////////////////////////////////////////////////
                             System.out.println("Проверка листа с объектами:");
                             System.out.println("myEmployeeArrayList count = " + myEmployeeArrayList.size());
+
+                            mySpecialtyArrayList = new ArrayList<>();
+
                             for(int k = 0; k < myEmployeeArrayList.size(); k++)
                             {
+                                // Здесь соберем все уникальные и не повторяющиеся специальности!!!
+/*                                if(mySpecialtyArrayList.size() == 0)
+                                {
+                                    tempSpecialty = new MySpecialty();
+                                    tempSpecialty.lIndex = ((MyEmployee)myEmployeeArrayList.get(k)).specialty_id;
+                                    tempSpecialty.specialty_name = ((MyEmployee)myEmployeeArrayList.get(k)).specialty_name;
+                                    mySpecialtyArrayList.add(tempSpecialty);
+                                }
+                                else// Другие проверки на совпадения - такие же не добавляем!!!
+                                {
+                                    //boolean bRet = false; // false - значти совпадений нет - это хорошо)))
+                                    tempSpecialty = new MySpecialty();
+                                    for(int l = 0; l < mySpecialtyArrayList.size(); l++)
+                                    {
+                                        if (mySpecialtyArrayList.get(l).lIndex == myEmployeeArrayList.get(k).specialty_id)
+                                        {
+                                            break;
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    }
+                                }*/
+
+
                                 System.out.println("fNAME = " + ((MyEmployee)myEmployeeArrayList.get(k)).f_name);
+                                System.out.println("lNAME = " + ((MyEmployee)myEmployeeArrayList.get(k)).l_name);
+                                System.out.println("birthday = " + ((MyEmployee)myEmployeeArrayList.get(k)).birthday);
                                 System.out.println("--------------------------------------------");
+
+                                tempSpecialty = new MySpecialty();
+
+                                tempSpecialty.lIndex = ((MyEmployee)myEmployeeArrayList.get(k)).specialty_id;
+                                tempSpecialty.specialty_name = ((MyEmployee)myEmployeeArrayList.get(k)).specialty_name;
+
+                                mySpecialtyArrayList.add(tempSpecialty);
                             }
+                            //ArrayList<MySpecialty> alSorted = new ArrayList<>(mySpecialtyArrayList);
+
+
+                           /* Set<MySpecialty> set = new HashSet<>(mySpecialtyArrayList);
+                            mySpecialtyArrayList.clear();
+                            mySpecialtyArrayList.addAll(set);*/
+
+                            //Set<MySpecialty> set = new LinkedHashSet<MySpecialty>(Arrays.asList(mySpecialtyArrayList));
+
+                            for(int l = 0; l < mySpecialtyArrayList.size(); l++)
+                            {
+                                System.out.println("ID = " + ((MySpecialty)mySpecialtyArrayList.get(l)).lIndex);
+                                System.out.println("specialty_name = " + ((MySpecialty)mySpecialtyArrayList.get(l)).specialty_name);
+                            }
+                            /////////////////////////////////////////////////////////////////////////////////////
                         }
                     } catch (ParseException e) {
                         System.err.println(e.toString());
@@ -284,11 +373,11 @@ public class MainFragment extends Fragment {
     }
     public void ClearDB()
     {
-        Log.d(dbHelper.LOG_TAG, "--- Clear mytable: ---");
+        Log.d(dbHelper.LOG_TAG, "--- Clear employee: ---");
         // удаляем все записи
-        int clearCount = db.delete("mytable", null, null);
+        int clearCount = db.delete("employee", null, null);
         Log.d(dbHelper.LOG_TAG, "deleted rows count = " + clearCount);
-        txtResponse.setText("Таблица очищена!" + "\n\n" +
+        txtResponse.setText("Таблица employee очищена!" + "\n\n" +
                              "Удалено количество строк = " + clearCount + "\n\n" );
       }
 

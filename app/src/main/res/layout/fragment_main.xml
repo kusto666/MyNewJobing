@@ -2,9 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/idMainFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="0dp"
+    android:tag="tagMainFragment"
     tools:context=".ui.mainfragment.MainFragment">
 
     <Button
@@ -25,10 +27,33 @@
         android:layout_marginTop="60dp"
         android:text="Очистить базу данных" />
 
+    <Button
+        android:id="@+id/btnShowSpecialty"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:text="Просмотр списка специальностей" />
+
+    <Button
+        android:id="@+id/btnShowJobInSelectSpec"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="180dp"
+        android:text="Просмотр списка работников, работающих по выбранной специальности" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="240dp"
+        android:text="ЛОГИРОВАНИЕ:"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="280dp"
         android:layout_marginBottom="60dp">
 
         <LinearLayout

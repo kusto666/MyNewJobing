@@ -18,12 +18,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Log.d(LOG_TAG, "--- onCreate database ---");
         // создаем таблицу с полями
-
-        ///
         db.execSQL("create table employee ("
                 + "id integer primary key autoincrement,"
                 + "fname text,"
-                + "lname text" + ");");
+                + "lname text,"
+                + "birthday text,"
+                + "avatr_url text,"
+                + "specialty_id long,"
+                + "specialty_name text"
+                + ");");
+
+        db.execSQL("create table specialty ("
+                + "id integer primary key autoincrement,"
+                + "specialty_id long,"
+                + "name text"
+                + ");");
     }
 
     @Override

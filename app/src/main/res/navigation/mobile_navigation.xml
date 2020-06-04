@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="main.jobing.mynewjobing.ui.home.HomeFragment"
+        android:name="main.jobing.mynewjobing.ui.employee.EmployeeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_employee" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="main.jobing.mynewjobing.ui.notifications.NotificationsFragment"
+        android:name="main.jobing.mynewjobing.ui.specialty.SpecialtyFragment"
         android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_specialty" />
 </navigation>

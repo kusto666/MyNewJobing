@@ -1,16 +1,16 @@
-package main.jobing.mynewjobing.ui.home;
+package main.jobing.mynewjobing.ui.employee;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HomeViewModel extends ViewModel {
+public class EmployeeViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public HomeViewModel() {
+    public EmployeeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+        mText.setValue("EmployeeViewModel");
     }
 
     public LiveData<String> getText() {
